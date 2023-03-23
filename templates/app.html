@@ -1,0 +1,28 @@
+
+    
+    <div class="container">
+        <h1>Live streaming</h1>
+        <div class="cam">    
+            <img src="{{ url_for('video') }}" width="50%"/>
+            {% if rec: %}
+                <p>Recording Started</p>
+            {% endif %}
+        </div>
+        <form action="{{ url_for('tasks') }}" method="POST">
+            <span>
+                <input type="submit"  name="on/off" value="ON/OFF"  class="btn ">
+            </span>
+            <span>    
+                <input type="submit"  name="rec" value="Start/Stop Recording" class="btn ">
+            </span>
+            <span>
+                <input type="submit"  name="capture" value="Capture" class="btn ">
+            </span>
+            
+        </form>
+        
+        
+    </div>
+    
+            
+    </body>
