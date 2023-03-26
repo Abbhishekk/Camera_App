@@ -17,11 +17,14 @@
             </span>
             <span>
                 <input type="submit"  name="capture" value="Capture" class="btn ">
-            </span>
-            
+            </span>  
         </form>
-        
-        
+        {% if now>1: %}
+        <a href="{{url_for('downloadrec')}}" class="btn btn-success">Download Recording</a>
+        {% endif %}
+        {% if cap: %}
+        <a href="{{url_for('downloadImg')}}" class="btn btn-success">Download Photo</a>
+        {% endif %}
     </div>
     
             

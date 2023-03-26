@@ -1,4 +1,4 @@
-from flask import Flask,render_template,Response, request
+from flask import Flask,render_template,Response, request,send_file
 import cv2
 import os,sys
 from threading import Thread
@@ -51,8 +51,8 @@ def generate_frames():
             break
         else:
             ret,buffer=cv2.imencode('.jpg',frame)
-            frame = cv2.flip(frame,1)
             
+            frame = cv2.flip(frame,1)
             frame=buffer.tobytes()
             
         yield(b'--frame\r\n'
@@ -62,8 +62,22 @@ def generate_frames():
 
 @app.route('/')
 def index():
-    global rec_frame
-    return render_template('index.html',rec = rec_frame)
+    global cap,rec_frame,now
+    return render_template('index.html',rec = rec_frame,cap = cap,now = now)
+
+@app.route('/downloadImg')
+def downloadImg():
+    global cap
+    cap_path = './shots/capture_{}.jpg'.format(str(cap))
+    return send_file(cap_path, as_attachment=True)
+
+@app.route('/downloadrec')
+def downloadrec():
+    global now
+    rec_path = './capture/output_{}.avi'.format(str(now))
+    return send_file(rec_path, as_attachment=True)
+    
+
 
 @app.route('/video')
 def video():
@@ -71,7 +85,7 @@ def video():
 
 @app.route('/requests',methods = ['POST','GET'])
 def tasks():
-    global switch,camera,rec_frame,out
+    global switch,camera,rec_frame,out,now,cap
     if request.method == 'POST':
         if request.form.get('on/off'):
             if(switch==1):
@@ -82,10 +96,10 @@ def tasks():
                 camera = cv2.VideoCapture(0)
                 switch=1
         elif request.form.get('rec'):
-            global now
+            
             rec_frame = not rec_frame
             if rec_frame:
-                
+                 
                 fourcc = cv2.VideoWriter_fourcc(*'XVID')
                 out = cv2.VideoWriter('./capture/output_{}.avi'.format(str(now)),fourcc, 20.0, (640,480))
                 thread = Thread(target = rec, args=[out,])
@@ -95,7 +109,7 @@ def tasks():
                 out.release()
 
         elif request.form.get('capture'):
-            global cap
+           
             cap += 1
             p = "./shots/capture_{}.jpg".format(cap)
             capture(p)
@@ -103,9 +117,9 @@ def tasks():
 
 
     elif request.method == 'GET':
-        return render_template('index.html',rec = rec_frame)
+        return render_template('index.html',rec = rec_frame, cap = cap,now = now)
     
-    return render_template('index.html',rec = rec_frame)
+    return render_template('index.html',rec = rec_frame, cap = cap,now = now)
 
 if __name__=="__main__":
     app.run(debug=True)
